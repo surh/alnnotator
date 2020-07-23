@@ -24,3 +24,24 @@ Takes an alignment in fasta format as defined in
 seqinr, and a tibble of features. Produces plot with
 annotated features.
 }
+\examples{
+# Creating alignment as defined by seqinr read.fasta
+aln <- list(seq1 = c(rep('A', 10), rep('B', 10), rep('C', 10)),
+seq2 = c(rep('A', 9), rep('B', 10), rep('C', 11)),
+seq3 = c(rep('A', 11), rep('B', 12), rep('C', 7)))
+aln
+
+# Table of features
+feats <- tibble::tibble(seq_id = paste0('seq', 1:3),
+                        feat_id = 'feat1',
+                        start = c(11, 10, 12),
+                        end = c(20, 19, 23)) \%>\%
+  dplyr::bind_rows(tibble::tibble(seq_id = paste0('seq', c(1,3)),
+                                  feat_id = 'feat2',
+                                  start = c(2, 4),
+                                  end = c(6, 7)))
+feats
+
+# Plot
+plot_aln_annots(aln = aln, feats = feats)
+}

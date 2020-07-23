@@ -24,21 +24,44 @@ seq_pos_from_aln <- function(seq){
 #' @param feats Feature table. Must have columns 'seq_id', 'feat_id',
 #' 'start', 'end'. It should not have overlapping features in the same
 #' sequence.
+#' @importFrom magrittr %>%
 #'
 #' @return
 feats_to_aln <- function(aln, feats){
 
-  res <- aln %>%
-    dplyr::left_join(feats, by = "seq_id") %>%
-    dplyr::mutate(feat_id = replace(feat_id,
-                             is.na(seq_pos) | seq_pos < start | seq_pos > end,
-                             NA)) %>%
-    dplyr::select(-start, -end)
+  # Prepare column for features
+  aln <- aln %>%
+    dplyr::mutate(feat_id = NA)
 
-  if(nrow(res) > nrow(aln))
-    stop("ERROR: Some of your features seem to overlap within the same sequence.", call. = TRUE)
+  # Map features to aln
+  for(f in unique(feats$feat_id)){
+    # Select feature
+    d <- feats %>%
+      dplyr::filter(feat_id == f)
 
-  return(res)
+    # Map feature to aln
+    aln <- aln %>%
+      dplyr::left_join(d, by = "seq_id") %>%
+      dplyr::mutate(feat_id.y = replace(feat_id.y,
+                                        is.na(seq_pos) | seq_pos < start | seq_pos > end,
+                                        NA))
+
+    # Check overlapping features
+    n_dups <- aln %>%
+      dplyr::filter(!is.na(feat_id.x) & !is.na(feat_id.y)) %>%
+      nrow()
+    if(n_dups > 0)
+      stop("ERROR: Some of your features seem to overlap within the same sequence.", call. = TRUE)
+
+    aln <- aln %>%
+      dplyr::mutate(feat_id = replace(feat_id.x,
+                                      is.na(feat_id.x) & !is.na(feat_id.y),
+                                      feat_id.y[ is.na(feat_id.x) & !is.na(feat_id.y) ])) %>%
+      # dplyr::filter(!is.na(feat_id.x) | !is.na(feat_id.y))
+      dplyr::select(-feat_id.y, -feat_id.x, -start, -end)
+  }
+
+  return(aln)
 }
 
 #' Plot alignment with features
@@ -56,8 +79,28 @@ feats_to_aln <- function(aln, feats){
 #'
 #' @return A ggplot2 plot
 #' @export
+#' @importFrom magrittr %>%
 #'
 #' @examples
+#' # Creating alignment as defined by seqinr read.fasta
+#' aln <- list(seq1 = c(rep('A', 10), rep('B', 10), rep('C', 10)),
+#' seq2 = c(rep('A', 9), rep('B', 10), rep('C', 11)),
+#' seq3 = c(rep('A', 11), rep('B', 12), rep('C', 7)))
+#' aln
+#'
+#' # Table of features
+#' feats <- tibble::tibble(seq_id = paste0('seq', 1:3),
+#'                         feat_id = 'feat1',
+#'                         start = c(11, 10, 12),
+#'                         end = c(20, 19, 23)) %>%
+#'   dplyr::bind_rows(tibble::tibble(seq_id = paste0('seq', c(1,3)),
+#'                                   feat_id = 'feat2',
+#'                                   start = c(2, 4),
+#'                                   end = c(6, 7)))
+#' feats
+#'
+#' # Plot
+#' plot_aln_annots(aln = aln, feats = feats)
 plot_aln_annots <- function(aln, feats, region = NULL){
 
   # Convert seqinr aln to tibble and optain original sequence positions
@@ -85,10 +128,7 @@ plot_aln_annots <- function(aln, feats, region = NULL){
     ggplot2::scale_fill_brewer() +
     ggplot2::ylab(label = "Sequence") +
     ggplot2::xlab(label = "Position") +
-    ggplot2::theme(plot.background = element_blank(),
-                   panel.background = element_blank(),
-                   panel.grid = element_blank())
-
-
-
+    ggplot2::theme(plot.background = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_blank(),
+                   panel.grid = ggplot2::element_blank())
 }
