@@ -15,7 +15,8 @@ Must have columns 'seq_id', 'seq_pos'.}
 sequence.}
 }
 \value{
-
+A tibble which is a modified version of aln that includes column
+'feat_id'
 }
 \description{
 For internal use.

@@ -26,7 +26,8 @@ seq_pos_from_aln <- function(seq){
 #' sequence.
 #' @importFrom magrittr %>%
 #'
-#' @return
+#' @return A tibble which is a modified version of aln that includes column
+#' 'feat_id'
 feats_to_aln <- function(aln, feats){
 
   # Prepare column for features
