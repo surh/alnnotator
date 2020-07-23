@@ -83,10 +83,10 @@ feats_to_aln <- function(aln, feats){
 #' @importFrom magrittr %>%
 #'
 #' @examples
-#' # Creating alignment as defined by seqinr read.fasta
-#' aln <- list(seq1 = c(rep('A', 10), rep('B', 10), rep('C', 10)),
-#' seq2 = c(rep('A', 9), rep('B', 10), rep('C', 11)),
-#' seq3 = c(rep('A', 11), rep('B', 12), rep('C', 7)))
+#' # Creating gapped alignment as defined by seqinr read.fasta
+#' aln <- list(seq1 = c(rep('A', 10), '-', rep('B', 10), rep('C', 10)),
+#'             seq2 = c(rep('A', 9), rep('B', 10), "-", rep('C', 11)),
+#'             seq3 = c(rep('A', 11), "-", rep('B', 12), rep('C', 7)))
 #' aln
 #'
 #' # Table of features
