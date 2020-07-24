@@ -1,7 +1,7 @@
 Package: alnnotator
 Type: Package
 Title: Annotate multiple sequence alignments
-Version: 0.2-0
+Version: 0.2-1
 Author: Sur Herrera Paredes
 Maintainer: Sur Herrera Paredes <surh@stanford.edu>
 Description: Helps you visualize annotations on the
