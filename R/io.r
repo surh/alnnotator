@@ -9,27 +9,11 @@
 #' @export
 read_ipro_tsv <- function(file,
                           date_format = "%d-%m-%Y"){
-  # file <- "interpro_examples/iprscan5-R20200722-215734-0731-39996086-p2m.txt"
-  # file <- "interpro_examples/iprscan5-R20200722-215836-0101-63677525-p2m.txt"
-  # date_format <- "%d-%m-%Y"
-  oldwarn <- getOption("warn")
-  options(warn = -1)
-  dat <- readr::read_tsv(file, col_names = FALSE,
-                         na = c("", "NA", "-"),
-                         col_types = readr::cols(X1 = readr::col_character(),
-                                                 X2 = readr::col_character(),
-                                                 X3 = readr::col_number(),
-                                                 X4 = readr::col_character(),
-                                                 X5 = readr::col_character(),
-                                                 X6 = readr::col_character(),
-                                                 X7 = readr::col_number(),
-                                                 X8 = readr::col_number(),
-                                                 X9 = readr::col_number(),
-                                                 X10 = readr::col_logical(),
-                                                 X11 = readr::col_date(format = date_format),
-                                                 .default = readr::col_character()))
-  options(warn = oldwarn)
-
+  
+  dat <- readr::read_lines(file, n_max = 20) %>%
+    purrr::map(stringr::str_split, pattern = "\t", simplify = TRUE) %>%
+    purrr::map(function(x){ x[ x == "-"] <- NA; x[ x == ""] <- NA; x}) %>%
+    purrr::map_dfr(tibble::as_tibble)
   col_names <- c("prot_id",
                  "seq_md5",
                  "seq_length",
@@ -46,6 +30,13 @@ read_ipro_tsv <- function(file,
                  "GO",
                  "pathway")
   colnames(dat) <-col_names[1:ncol(dat)]
+  
+  dat$seq_length <- readr::parse_number(dat$seq_length)
+  dat$start <- readr::parse_number(dat$start)
+  dat$end <- readr::parse_number(dat$end)
+  dat$score <- readr::parse_number(dat$score)
+  dat$status <- readr::parse_logical(dat$status)
+  dat$date <- readr::parse_date(dat$date, format = date_format)
 
   dat
 }
