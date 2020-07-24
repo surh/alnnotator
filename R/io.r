@@ -10,7 +10,7 @@
 read_ipro_tsv <- function(file,
                           date_format = "%d-%m-%Y"){
   
-  dat <- readr::read_lines(file, n_max = 20) %>%
+  dat <- readr::read_lines(file) %>%
     purrr::map(stringr::str_split, pattern = "\t", simplify = TRUE) %>%
     purrr::map(function(x){ x[ x == "-"] <- NA; x[ x == ""] <- NA; x}) %>%
     purrr::map_dfr(tibble::as_tibble)
