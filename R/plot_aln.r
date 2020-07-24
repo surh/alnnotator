@@ -77,6 +77,7 @@ feats_to_aln <- function(aln, feats){
 #' 'start', 'end'. It should not have overlapping features in the same
 #' @param region Start and end positions of range to plot. If NULL, plot
 #' all the alignment.
+#' @param seq_text Should sequence text be included in the figure?
 #'
 #' @return A ggplot2 plot
 #' @export
@@ -102,7 +103,7 @@ feats_to_aln <- function(aln, feats){
 #'
 #' # Plot
 #' plot_aln_annots(aln = aln, feats = feats)
-plot_aln_annots <- function(aln, feats, region = NULL){
+plot_aln_annots <- function(aln, feats, region = NULL, seq_text = FALSE){
 
   # Convert seqinr aln to tibble and optain original sequence positions
   aln <- aln %>%
@@ -118,13 +119,11 @@ plot_aln_annots <- function(aln, feats, region = NULL){
   }
 
   # Plot
-  dat %>%
+  p1 <- dat %>%
     dplyr::filter(aln_pos >= region[1] & aln_pos <= region[2]) %>%
 
     ggplot2::ggplot(ggplot2::aes(x = aln_pos, y = seq_id)) +
     ggplot2::geom_tile(ggplot2::aes(fill = feat_id), col = NA) +
-    # ggplot2::geom_text(ggplot2::aes(label = char)) +
-    ggfittext::geom_fit_text(ggplot2::aes(label = char)) +
     # scale_fill_manual(values = c("pink", NA)) +
     ggplot2::scale_fill_brewer() +
     ggplot2::ylab(label = "Sequence") +
@@ -132,4 +131,12 @@ plot_aln_annots <- function(aln, feats, region = NULL){
     ggplot2::theme(plot.background = ggplot2::element_blank(),
                    panel.background = ggplot2::element_blank(),
                    panel.grid = ggplot2::element_blank())
+  
+  if(seq_text){
+    p1 <- p1 +
+      # ggplot2::geom_text(ggplot2::aes(label = char)) +
+      ggfittext::geom_fit_text(ggplot2::aes(label = char))
+  }
+  
+  p1
 }

@@ -4,7 +4,7 @@
 \alias{plot_aln_annots}
 \title{Plot alignment with features}
 \usage{
-plot_aln_annots(aln, feats, region = NULL)
+plot_aln_annots(aln, feats, region = NULL, seq_text = FALSE)
 }
 \arguments{
 \item{aln}{Alignment in fasta format from seqinr. See
@@ -15,6 +15,8 @@ examples.}
 
 \item{region}{Start and end positions of range to plot. If NULL, plot
 all the alignment.}
+
+\item{seq_text}{Should sequence text be included in the figure?}
 }
 \value{
 A ggplot2 plot
